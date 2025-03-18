@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Validação de Wind Shear - Previsor CIMAER</title>
     <style>
-        /* Estilos consolidados e otimizados */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             max-width: 850px;
@@ -22,11 +21,56 @@
             margin-top: 20px;
         }
 
-        .info-box {
-            background-color: #f8f9fa;
-            padding: 1rem;
+        h2, h3, h5 {
+            margin: 0 0 15px 0;
+            color: #1a1a1a;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+            color: #374151;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
             border-radius: 4px;
-            margin: 1rem 0;
+            margin-bottom: 0.5rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.5rem;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            background-color: #f3f4f6;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button.active {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
         }
 
         .preview {
@@ -38,8 +82,29 @@
             margin: 1rem 0;
         }
 
-        /* Demais estilos mantidos do código anterior */
-        /* ... */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .info-box {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+
+        .warning {
+            color: #dc2626;
+            border-left: 3px solid #dc2626;
+            padding-left: 1rem;
+            margin: 1rem 0;
+        }
     </style>
 </head>
 <body>
@@ -49,23 +114,91 @@
         <!-- Reporte Original do EMS -->
         <div class="info-box">
             <h5>Reporte Recebido (EMS):</h5>
-            <pre class="preview" id="emsReportPreview"></pre>
+            <pre class="preview" id="emsReport">FENÔMENO: WS (SEV)
+ORIGEM: REP AT 1210 | AERONAVE: B747
+LOCALIZAÇÃO: APCH RWY12
+DADOS: SFC WIND 25015KT | LOSS 30KT | GAIN 25KT</pre>
         </div>
 
         <!-- Formulário de Edição -->
         <form id="windShearForm">
-            <!-- Cabeçalho e Validade -->
             <div class="form-row">
-                <div class="form-group">
-                    <label>Validade</label>
-                    <div class="grid">
-                        <input type="datetime-local" id="validityStart">
-                        <input type="datetime-local" id="validityEnd" readonly>
+                <!-- Coluna Esquerda -->
+                <div style="flex: 1;">
+                    <!-- Fenômeno e Severidade -->
+                    <div class="form-group">
+                        <label>Fenômeno</label>
+                        <div class="button-group" id="phenomenon">
+                            <button type="button" data-value="WS" class="active">WS</button>
+                            <button type="button" data-value="MBST">MBST</button>
+                        </div>
                     </div>
-                    <div class="button-group">
-                        <button type="button" data-minutes="30">30 Min</button>
-                        <button type="button" data-minutes="60">60 Min</button>
-                        <button type="button" data-minutes="120">120 Min</button>
+
+                    <!-- Localização -->
+                    <div class="form-group">
+                        <label>Localização</label>
+                        <div class="button-group" id="localization">
+                            <button type="button" data-value="APCH" class="active">APCH</button>
+                            <button type="button" data-value="CLIMB-OUT">CLIMB-OUT</button>
+                        </div>
+                        <input type="text" id="rwy" placeholder="RWY" value="12">
+                    </div>
+
+                    <!-- Origem -->
+                    <div class="form-group">
+                        <label>Origem</label>
+                        <div class="button-group" id="infoSource">
+                            <button type="button" data-value="REP" class="active">REP</button>
+                            <button type="button" data-value="OBS">OBS</button>
+                        </div>
+                        
+                        <!-- Campos REP -->
+                        <div id="repFields">
+                            <div class="form-row">
+                                <div>
+                                    <label>REP AT (HHMM)</label>
+                                    <input type="text" id="repTime" value="1210" maxlength="4">
+                                </div>
+                                <div>
+                                    <label>Aeronave</label>
+                                    <input type="text" id="repAC" value="B747" maxlength="8">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coluna Direita -->
+                <div style="flex: 1;">
+                    <!-- Validade -->
+                    <div class="form-group">
+                        <label>Validade</label>
+                        <div class="grid">
+                            <input type="datetime-local" id="validityStart">
+                            <input type="datetime-local" id="validityEnd" readonly>
+                        </div>
+                        <div class="button-group">
+                            <button type="button" data-minutes="30">30 Min</button>
+                            <button type="button" data-minutes="60">60 Min</button>
+                            <button type="button" data-minutes="120">120 Min</button>
+                        </div>
+                    </div>
+
+                    <!-- Dados Técnicos -->
+                    <div class="form-group">
+                        <label>Vento Superfície (KT)</label>
+                        <input type="text" id="surfaceWind" value="25015">
+                        
+                        <div class="form-row">
+                            <div>
+                                <label>Perda (KT)</label>
+                                <input type="text" id="loss" value="30">
+                            </div>
+                            <div>
+                                <label>Ganho (KT)</label>
+                                <input type="text" id="gain" value="25">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -73,115 +206,126 @@
             <!-- Mensagem Codificada -->
             <div class="form-group">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h5>Mensagem WS WRNG</h5>
-                    <button type="button" id="toggleEditBtn">Editar Manualmente</button>
+                    <h5>Mensagem WS WRNG Gerada:</h5>
+                    <button type="button" id="toggleEdit">Editar Manualmente</button>
                 </div>
                 <pre class="preview" id="messagePreview"></pre>
-                <textarea class="hidden" id="manualMsg"></textarea>
+                <textarea class="hidden" id="manualEdit"></textarea>
+                <div class="warning">Alterações manuais podem invalidar o formato padrão!</div>
             </div>
 
-            <!-- Demais campos do formulário mantidos -->
-            <!-- ... -->
+            <!-- Ações -->
+            <div class="button-group">
+                <button type="button" style="background-color: #3b82f6; color: white;">Validar e Publicar</button>
+                <button type="button" style="background-color: #dc2626; color: white;">Rejeitar Reporte</button>
+            </div>
         </form>
     </div>
 
     <script>
-        // Estado inicial com dados do Reporte EMS
-        const initialState = {
-            emsReport: `FENÔMENO: WS (SEV)
-ORIGEM: REP AT 1210 | AERONAVE: B747
-LOCALIZAÇÃO: APCH RWY12
-DADOS: SFC WIND 25015KT | LOSS 30KT | GAIN 25KT`,
-
-            // Demais campos do state mantidos
-            // ...
+        // Estado inicial baseado no reporte EMS
+        const state = {
+            phenomenon: 'WS',
+            severity: 'SEV',
+            localization: ['APCH'],
+            rwy: '12',
+            infoSource: ['REP'],
+            repTime: '1210',
+            repAC: 'B747',
+            surfaceWind: '25015',
+            loss: '30',
+            gain: '25',
+            validityStart: new Date().toISOString().slice(0, 16),
+            validityEnd: '',
+            manualMode: false
         };
 
-        // Função para parsear o Reporte EMS
-        function parseEMSReport(reportText) {
-            const lines = reportText.split('\n');
-            const result = {};
-            
-            lines.forEach(line => {
-                const [key, value] = line.split(':').map(s => s.trim());
-                switch(key) {
-                    case 'FENÔMENO':
-                        const [phen, severity] = value.split(' ');
-                        result.phenomenon = phen;
-                        if(severity) result.severity = severity.replace(/[()]/g, '');
-                        break;
-                    case 'ORIGEM':
-                        if(value.includes('REP AT')) {
-                            result.infoSource = ['REP'];
-                            const [_, time, ac] = value.match(/REP AT (\d{4}) \| AERONAVE: (\w+)/) || [];
-                            result.repTime = time;
-                            result.repAC = ac;
-                        }
-                        break;
-                    case 'LOCALIZAÇÃO':
-                        const [loc, rwy] = value.split(' ');
-                        result.localization = [loc];
-                        result.rwy = rwy.replace('RWY', '');
-                        break;
-                    case 'DADOS':
-                        value.split('|').forEach(item => {
-                            const [key, val] = item.trim().split(' ');
-                            if(key === 'SFC WIND') result.surfaceWind = val.replace('KT', '');
-                            if(key === 'LOSS') result.loss = val.replace('KT', '');
-                            if(key === 'GAIN') result.gain = val.replace('KT', '');
-                        });
-                        break;
-                }
-            });
-            
-            return result;
+        // Funções principais
+        function updateStateFromForm() {
+            state.phenomenon = document.querySelector('#phenomenon button.active').dataset.value;
+            state.severity = document.querySelector('#severity button.active')?.dataset.value || 'SEV';
+            state.localization = [document.querySelector('#localization button.active').dataset.value];
+            state.rwy = document.getElementById('rwy').value;
+            state.repTime = document.getElementById('repTime').value;
+            state.repAC = document.getElementById('repAC').value.toUpperCase();
+            state.surfaceWind = document.getElementById('surfaceWind').value;
+            state.loss = document.getElementById('loss').value;
+            state.gain = document.getElementById('gain').value;
+            state.validityStart = document.getElementById('validityStart').value;
         }
 
-        // Atualização do State inicial
-        const state = {
-            ...initialState,
-            ...parseEMSReport(initialState.emsReport),
-            validityStart: new Date().toISOString().slice(0, 16),
-            validityEnd: ''
-        };
-
-        // Função de geração da mensagem WS WRNG
-        function generateWRNGMessage() {
+        function generateWRNG() {
             const start = formatTimestamp(state.validityStart);
             const end = formatTimestamp(state.validityEnd);
             
-            return `${state.location} WS WRNG 4 ${start}
+            return `SBAR WS WRNG 4 ${start}
 VALID ${start}/${end}
 ${state.severity} WS IN ${state.localization} RWY${state.rwy}
 SFC WIND: ${state.surfaceWind}KT
 LOSS: ${state.loss}KT GAIN: ${state.gain}KT`;
         }
 
-        // Função para atualização bidirecional
-        function syncFields() {
-            // Atualiza campos do formulário
-            document.getElementById('repTime').value = state.repTime;
-            document.getElementById('repAC').value = state.repAC;
-            document.getElementById('rwy').value = state.rwy;
-            
-            // Atualiza previews
-            document.getElementById('emsReportPreview').textContent = state.emsReport;
-            document.getElementById('messagePreview').textContent = generateWRNGMessage();
+        function formatTimestamp(datetime) {
+            return datetime.replace(/[-T:]/g, '').slice(4, 12);
         }
 
-        // Event listeners para edição bidirecional
-        document.getElementById('messagePreview').addEventListener('dblclick', () => {
-            document.getElementById('toggleEditBtn').click();
+        function updateValidityEnd(minutes) {
+            const start = new Date(state.validityStart);
+            const end = new Date(start.getTime() + minutes * 60000);
+            state.validityEnd = end.toISOString().slice(0, 16);
+            document.getElementById('validityEnd').value = state.validityEnd;
+        }
+
+        // Event Listeners
+        document.querySelectorAll('input, button').forEach(element => {
+            element.addEventListener('input', () => {
+                if (!state.manualMode) {
+                    updateStateFromForm();
+                    document.getElementById('messagePreview').textContent = generateWRNG();
+                }
+            });
+        });
+
+        document.querySelectorAll('.button-group button').forEach(btn => {
+            btn.addEventListener('click', e => {
+                if (e.target.closest('.button-group')) {
+                    const group = e.target.closest('.button-group').id;
+                    const value = e.target.dataset.value;
+                    
+                    // Atualizar estado
+                    if (group === 'phenomenon') state.phenomenon = value;
+                    if (group === 'localization') state.localization = [value];
+                    
+                    // Atualizar UI
+                    document.querySelectorAll(`#${group} button`).forEach(b => 
+                        b.classList.toggle('active', b === e.target)
+                    );
+                    
+                    if (!state.manualMode) {
+                        document.getElementById('messagePreview').textContent = generateWRNG();
+                    }
+                }
+            });
+        });
+
+        document.getElementById('toggleEdit').addEventListener('click', () => {
+            state.manualMode = !state.manualMode;
+            document.getElementById('manualEdit').classList.toggle('hidden');
+            document.getElementById('messagePreview').classList.toggle('hidden');
+            document.getElementById('toggleEdit').textContent = 
+                state.manualMode ? 'Voltar ao Editor' : 'Editar Manualmente';
+            
+            if (state.manualMode) {
+                document.getElementById('manualEdit').value = document.getElementById('messagePreview').textContent;
+            } else {
+                document.getElementById('messagePreview').textContent = document.getElementById('manualEdit').value;
+            }
         });
 
         // Inicialização
-        document.addEventListener('DOMContentLoaded', () => {
-            syncFields();
-            calculateValidityEnd();
-        });
-
-        // Demais funções mantidas com ajustes
-        // ...
+        document.getElementById('validityStart').value = state.validityStart;
+        updateValidityEnd(120);
+        document.getElementById('messagePreview').textContent = generateWRNG();
     </script>
 </body>
 </html>
