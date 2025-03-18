@@ -120,6 +120,17 @@ LOCALIZAÇÃO: APCH RWY12
 DADOS: SFC WIND 25015KT | LOSS 30KT | GAIN 25KT</pre>
         </div>
 
+                    <!-- Mensagem Codificada -->
+            <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h5>Mensagem WS WRNG Gerada:</h5>
+                    <button type="button" id="toggleEdit">Editar Manualmente</button>
+                </div>
+                <pre class="preview" id="messagePreview"></pre>
+                <textarea class="hidden" id="manualEdit"></textarea>
+                <div class="warning">Alterações manuais podem invalidar o formato padrão!</div>
+            </div>
+
         <!-- Formulário de Edição -->
         <form id="windShearForm">
             <div class="form-row">
@@ -203,16 +214,7 @@ DADOS: SFC WIND 25015KT | LOSS 30KT | GAIN 25KT</pre>
                 </div>
             </div>
 
-            <!-- Mensagem Codificada -->
-            <div class="form-group">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h5>Mensagem WS WRNG Gerada:</h5>
-                    <button type="button" id="toggleEdit">Editar Manualmente</button>
-                </div>
-                <pre class="preview" id="messagePreview"></pre>
-                <textarea class="hidden" id="manualEdit"></textarea>
-                <div class="warning">Alterações manuais podem invalidar o formato padrão!</div>
-            </div>
+
 
             <!-- Ações -->
             <div class="button-group">
